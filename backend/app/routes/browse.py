@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query
 
+from app.conditions import BY_SLUG, CONDITIONS
 from app.db import query
 from app.ordering import with_sponsored_first
 
@@ -20,7 +21,7 @@ def categories():
 @router.get("/categories/{name}")
 def category(name: str):
     rows = query(
-        """SELECT id, trade_name_en, ingredients, strength_text, dosage_form, rx_status, status, sponsored, priority,
+        """SELECT id, trade_name_en, trade_name_ar, ingredients, strength_text, dosage_form, rx_status, status, sponsored, priority,
                   manufacturer, country, from_price, price_per_unit, unit_name
            FROM medicine_cards WHERE therapeutic_class = %s ORDER BY trade_name_en, strength_text""",
         (name,),
@@ -66,3 +67,38 @@ def _by_letter(rows, field, letter):
     if letter:
         rows = [r for r in rows if r[field] and r[field][0].upper() == letter.upper()]
     return {"letters": letters, "total": len(rows), "items": rows}
+
+
+def _condition_filter(classes):
+    return " OR ".join(["therapeutic_class ILIKE %s"] * len(classes)), [f"%{c}%" for c in classes]
+
+
+@router.get("/conditions")
+def conditions():
+    out = []
+    for c in CONDITIONS:
+        where, params = _condition_filter(c["classes"])
+        row = query(
+            f"""SELECT count(*) AS medicines, (array_agg(DISTINCT ingredients))[1:3] AS examples
+                FROM medicine_cards WHERE {where}""",
+            params,
+        )[0]
+        if row["medicines"]:
+            out.append({"slug": c["slug"], "name_en": c["name_en"], "name_ar": c["name_ar"], **row})
+    return out
+
+
+@router.get("/conditions/{slug}")
+def condition(slug: str):
+    c = BY_SLUG.get(slug)
+    if not c:
+        raise HTTPException(404, "Condition not found")
+    where, params = _condition_filter(c["classes"])
+    rows = query(
+        f"""SELECT id, trade_name_en, trade_name_ar, ingredients, strength_text, dosage_form, rx_status, status, sponsored,
+                   priority, manufacturer, country, from_price, price_per_unit, unit_name
+            FROM medicine_cards WHERE {where} ORDER BY trade_name_en, strength_text""",
+        params,
+    )
+    return {"slug": slug, "name_en": c["name_en"], "name_ar": c["name_ar"], "total": len(rows),
+            "results": with_sponsored_first(rows)}

@@ -10,7 +10,7 @@ CARD_FIELDS = """id, trade_name_en, trade_name_ar, ingredients, strength_text, d
 
 
 @router.get("/search")
-def search(q: str = Query(min_length=2, max_length=100), limit: int = Query(20, le=50)):
+def search(q: str = Query(min_length=2, max_length=100), limit: int = Query(48, le=100)):
     """Search by trade name or active ingredient, tolerant of small typos."""
     term = q.strip().lower()
     rows = query(

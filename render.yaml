@@ -16,5 +16,7 @@ services:
         value: 3.12.7
       - key: DATABASE_URL
         sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
       - key: CORS_ORIGINS
         value: https://malakabdelwahab-ds.github.io,http://localhost:3000
