@@ -205,6 +205,24 @@ const en = {
       { value: "2", label: "Languages, Arabic and English" },
     ],
 
+    globeLabel: "Jordan",
+    globeHint: "Drag to spin the globe",
+    timeline: [
+      { year: "[Year]", title: "Our first pharmacy", text: "[Where it opened and who opened it.]" },
+      { year: "[Year]", title: "[number] branches across Jordan", text: "[A line about how the chain grew.]" },
+      { year: "2026", title: "Pharmacy World online", text: "Our pharmacists’ knowledge, open to everyone, in Arabic and English." },
+    ],
+    demo: {
+      example: "Example",
+      medicine: "Panadol 500 mg",
+      tabs: ["Uses", "Dosing", "Warnings"],
+      rows: ["Medicine A", "Medicine B", "Medicine C"],
+      lowest: "Lowest price",
+      verified: "Checked by our pharmacists",
+      reference: "Reference",
+      lastUpdated: "Last updated",
+      question: "What is this medicine used for?",
+    },
     storyEyebrow: "Our story",
     storyTitle: "It started at the pharmacy counter.",
     storyText: [
@@ -445,6 +463,24 @@ const ar: Dict = {
       { value: "2", label: "لغتان، العربية والإنجليزية" },
     ],
 
+    globeLabel: "الأردن",
+    globeHint: "اسحب لتدوير الكرة الأرضية",
+    timeline: [
+      { year: "[السنة]", title: "أول صيدلية لنا", text: "[أين افتُتحت ومن افتتحها.]" },
+      { year: "[السنة]", title: "[عدد] فرع في الأردن", text: "[سطر عن كيف نمت السلسلة.]" },
+      { year: "2026", title: "فارمسي وورلد على الإنترنت", text: "معرفة صيادلتنا، متاحة للجميع، بالعربية والإنجليزية." },
+    ],
+    demo: {
+      example: "مثال",
+      medicine: "بانادول 500 ملغ",
+      tabs: ["الاستخدامات", "الجرعة", "التحذيرات"],
+      rows: ["الدواء أ", "الدواء ب", "الدواء ج"],
+      lowest: "الأقل سعراً",
+      verified: "راجعه صيادلتنا",
+      reference: "المرجع",
+      lastUpdated: "آخر تحديث",
+      question: "لماذا يُستخدم هذا الدواء؟",
+    },
     storyEyebrow: "قصتنا",
     storyTitle: "بدأت القصة عند كاونتر الصيدلية.",
     storyText: [
