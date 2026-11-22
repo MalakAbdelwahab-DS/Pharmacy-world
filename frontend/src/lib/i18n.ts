@@ -188,6 +188,70 @@ const en = {
   error: "Something went wrong. Please try again.",
   notFound: "Medicine not found",
   currency: "JOD",
+  aboutLink: "About us",
+
+  // About page. Text in [brackets] is a placeholder for Dr. Sakher to fill in.
+  about: {
+    eyebrow: "About Pharmacy World",
+    heroTitle: "Pharmacists you know, now online.",
+    heroText:
+      "For [number] years, Pharmacy World has served families across Jordan from our pharmacies. This website brings the same care online, so anyone can understand their medicine, in Arabic or English.",
+    heroPrimary: "Find a branch",
+    heroSecondary: "Search a medicine",
+    stats: [
+      { value: "[number]", label: "Years serving Jordan" },
+      { value: "[number]", label: "Branches" },
+      { value: "[number]", label: "Medicines in our database" },
+      { value: "2", label: "Languages, Arabic and English" },
+    ],
+
+    storyEyebrow: "Our story",
+    storyTitle: "It started at the pharmacy counter.",
+    storyText: [
+      "[Founding story: when and where the first Pharmacy World opened, and who opened it.]",
+      "Every day, our pharmacists answered the same questions. What is this medicine for? Is there a cheaper one that works the same? Can I take it with my other medicine? Good answers made a real difference, but people could only get them at the counter.",
+      "So we built this website: the knowledge of our pharmacists, open to everyone, at any time.",
+    ],
+    storyPhoto: "Photo of our first pharmacy",
+    storyQuote: "You come first",
+    storyQuoteText: "The promise in our logo, and the reason this website exists.",
+
+    whyEyebrow: "Why we built this website",
+    whyTitle: "Clear answers about your medicine",
+    whyItems: [
+      { title: "Know your medicine", text: "What it’s for, how to take it, and what to watch out for, written in plain words." },
+      { title: "Same medicine, lower price", text: "See medicines with the same ingredient, strength and form, sorted by price." },
+      { title: "Checked by pharmacists", text: "Every page is reviewed by our pharmacists, with the reference and the date it was last updated." },
+      { title: "Arabic and English", text: "Search, read and ask in either language. Our AI assistant understands both, by text or voice." },
+    ],
+
+    foundersEyebrow: "Our founders",
+    foundersTitle: "The people behind Pharmacy World",
+    founders: [
+      { name: "[Founder name]", role: "[Role, for example Founder and pharmacist]", bio: "[Two or three lines about the founder.]" },
+      { name: "[Founder name]", role: "[Role]", bio: "[Two or three lines about the founder.]" },
+    ],
+
+    branchesEyebrow: "Our branches",
+    branchesTitle: "Visit us",
+    branchesText: "Our pharmacists are happy to help in person.",
+    branches: [
+      { name: "[Branch name]", area: "[Area, city]", hours: "[Opening hours]", phone: "[Phone]" },
+      { name: "[Branch name]", area: "[Area, city]", hours: "[Opening hours]", phone: "[Phone]" },
+      { name: "[Branch name]", area: "[Area, city]", hours: "[Opening hours]", phone: "[Phone]" },
+    ],
+    directions: "Directions",
+    call: "Call",
+
+    contactTitle: "Questions? We’re here to help.",
+    contactText: "Talk to a pharmacist at any branch, or reach us here.",
+    contactItems: [
+      { label: "Phone", value: "[Phone]" },
+      { label: "WhatsApp", value: "[WhatsApp number]" },
+      { label: "Email", value: "[Email]" },
+    ],
+    contactNote: "For an emergency, call 911.",
+  },
 };
 
 type Dict = typeof en;
@@ -365,6 +429,69 @@ const ar: Dict = {
   error: "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
   notFound: "لم يتم العثور على الدواء",
   currency: "د.أ",
+  aboutLink: "من نحن",
+
+  about: {
+    eyebrow: "عن فارمسي وورلد",
+    heroTitle: "صيادلة تعرفهم، الآن على الإنترنت.",
+    heroText:
+      "منذ [عدد] سنة، تخدم فارمسي وورلد العائلات في الأردن من خلال صيدلياتها. هذا الموقع ينقل نفس الاهتمام إلى الإنترنت، ليفهم كل شخص دواءه، بالعربية أو الإنجليزية.",
+    heroPrimary: "اعثر على فرع",
+    heroSecondary: "ابحث عن دواء",
+    stats: [
+      { value: "[عدد]", label: "سنة في خدمة الأردن" },
+      { value: "[عدد]", label: "فرع" },
+      { value: "[عدد]", label: "دواء في قاعدة بياناتنا" },
+      { value: "2", label: "لغتان، العربية والإنجليزية" },
+    ],
+
+    storyEyebrow: "قصتنا",
+    storyTitle: "بدأت القصة عند كاونتر الصيدلية.",
+    storyText: [
+      "[قصة التأسيس: متى وأين افتُتحت أول صيدلية فارمسي وورلد، ومن افتتحها.]",
+      "كل يوم، كان صيادلتنا يجيبون عن نفس الأسئلة. لماذا يُستخدم هذا الدواء؟ هل يوجد دواء أرخص يعمل بنفس الطريقة؟ هل يمكنني أخذه مع دوائي الآخر؟ الإجابات الجيدة كانت تصنع فرقاً حقيقياً، لكنها كانت متاحة فقط عند الكاونتر.",
+      "لذلك بنينا هذا الموقع: معرفة صيادلتنا، متاحة للجميع، في أي وقت.",
+    ],
+    storyPhoto: "صورة أول صيدلية لنا",
+    storyQuote: "أنتم أولاً",
+    storyQuoteText: "الوعد الذي في شعارنا، والسبب الذي بُني من أجله هذا الموقع.",
+
+    whyEyebrow: "لماذا بنينا هذا الموقع",
+    whyTitle: "إجابات واضحة عن دوائك",
+    whyItems: [
+      { title: "اعرف دواءك", text: "لماذا يُستخدم، وكيف تأخذه، وما الذي يجب الانتباه له، بكلمات بسيطة." },
+      { title: "نفس الدواء بسعر أقل", text: "شاهد الأدوية التي لها نفس المادة الفعالة والتركيز والشكل، مرتبة حسب السعر." },
+      { title: "يراجعها الصيادلة", text: "كل صفحة يراجعها صيادلتنا، مع المرجع وتاريخ آخر تحديث." },
+      { title: "العربية والإنجليزية", text: "ابحث واقرأ واسأل بأي من اللغتين. مساعدنا الذكي يفهم الاثنتين، كتابةً أو صوتاً." },
+    ],
+
+    foundersEyebrow: "المؤسسون",
+    foundersTitle: "الأشخاص وراء فارمسي وورلد",
+    founders: [
+      { name: "[اسم المؤسس]", role: "[المنصب، مثلاً مؤسس وصيدلاني]", bio: "[سطران أو ثلاثة عن المؤسس.]" },
+      { name: "[اسم المؤسس]", role: "[المنصب]", bio: "[سطران أو ثلاثة عن المؤسس.]" },
+    ],
+
+    branchesEyebrow: "فروعنا",
+    branchesTitle: "زورونا",
+    branchesText: "صيادلتنا يسعدهم مساعدتكم شخصياً.",
+    branches: [
+      { name: "[اسم الفرع]", area: "[المنطقة، المدينة]", hours: "[ساعات العمل]", phone: "[الهاتف]" },
+      { name: "[اسم الفرع]", area: "[المنطقة، المدينة]", hours: "[ساعات العمل]", phone: "[الهاتف]" },
+      { name: "[اسم الفرع]", area: "[المنطقة، المدينة]", hours: "[ساعات العمل]", phone: "[الهاتف]" },
+    ],
+    directions: "الاتجاهات",
+    call: "اتصل",
+
+    contactTitle: "عندك سؤال؟ نحن هنا للمساعدة.",
+    contactText: "تحدّث مع صيدلي في أي فرع، أو تواصل معنا هنا.",
+    contactItems: [
+      { label: "الهاتف", value: "[الهاتف]" },
+      { label: "واتساب", value: "[رقم واتساب]" },
+      { label: "البريد الإلكتروني", value: "[البريد الإلكتروني]" },
+    ],
+    contactNote: "في حالة الطوارئ، اتصل بـ 911.",
+  },
 };
 
 export const dictionaries: Record<Lang, Dict> = { en, ar };

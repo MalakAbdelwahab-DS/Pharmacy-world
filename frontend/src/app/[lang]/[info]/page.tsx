@@ -2,7 +2,8 @@ import { notFound } from "next/navigation";
 
 import { dictionaries, isLang, languages } from "@/lib/i18n";
 
-const pages = ["about", "disclaimer", "privacy", "contact"] as const;
+// "about" has its own page in /about
+const pages = ["disclaimer", "privacy", "contact"] as const;
 type InfoPage = (typeof pages)[number];
 
 export function generateStaticParams() {
