@@ -39,8 +39,8 @@ jobs:
       run:
         working-directory: backend
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - run: pipx install poetry
@@ -56,8 +56,8 @@ jobs:
       run:
         working-directory: frontend
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -71,14 +71,13 @@ jobs:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: [backend-test, frontend-build]
     runs-on: ubuntu-latest
-    environment:
-      name: development
-      url: ${{ vars.API_URL }}/docs
+    environment: development
     defaults:
       run:
         working-directory: backend
     steps:
       - name: Check setup
+        working-directory: .
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
@@ -92,8 +91,8 @@ jobs:
             echo "::error::The development environment is missing:$missing. See README, section Deployment."
             exit 1
           fi
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - run: pipx install poetry
@@ -128,8 +127,8 @@ jobs:
       name: development
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
