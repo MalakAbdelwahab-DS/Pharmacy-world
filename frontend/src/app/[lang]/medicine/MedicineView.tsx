@@ -6,8 +6,10 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
 import { formatPrice, MedicineCard, medicineName } from "@/components/MedicineCard";
+import { useRouter } from "next/navigation";
 import { Badge, Button, Chip, RxBadge } from "@/components/ui";
 import { api, type Alternatives, type MedicineDetail } from "@/lib/api";
+import { useApp } from "@/lib/store";
 import { dictionaries, type Lang } from "@/lib/i18n";
 
 type TabKey = "alternatives" | "uses" | "dosing" | "warnings" | "side_effects" | "storage";
@@ -25,6 +27,14 @@ function View({ lang }: { lang: Lang }) {
   const [pack, setPack] = useState(0);
   const discontinued = m?.status === "discontinued";
   const [tab, setTab] = useState<TabKey>("alternatives");
+  const { user, compare, toggleCompare, openChat } = useApp();
+  const router = useRouter();
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (!user || !id) return;
+    api.saved().then((list) => setSaved(list.some((x) => String(x.id) === id))).catch(() => undefined);
+  }, [user, id]);
 
   useEffect(() => {
     if (!id) return;
@@ -75,7 +85,9 @@ function View({ lang }: { lang: Lang }) {
         {"   ›   "}
         {m.therapeutic_class && (
           <>
-            <bdi>{m.therapeutic_class}</bdi>
+            <Link href={`/${lang}/browse/category/?name=${encodeURIComponent(m.therapeutic_class)}`}>
+              <bdi>{m.therapeutic_class}</bdi>
+            </Link>
             {"   ›   "}
           </>
         )}
@@ -121,13 +133,41 @@ function View({ lang }: { lang: Lang }) {
               )}
             </div>
             <div className="pt-2 flex flex-wrap gap-2">
-              {m.therapeutic_class && <Chip><bdi>{m.therapeutic_class}</bdi></Chip>}
+              {m.therapeutic_class && (
+                <Chip href={`/${lang}/browse/category/?name=${encodeURIComponent(m.therapeutic_class)}`}>
+                  <bdi>{m.therapeutic_class}</bdi>
+                </Chip>
+              )}
               {m.atc_code && <Chip><bdi>ATC {m.atc_code}</bdi></Chip>}
             </div>
             <div className="flex flex-wrap gap-2">
-              <Button style="primary">{t.askAboutMedicine}</Button>
-              <Button style="secondary">{t.compare}</Button>
-              <Button style="secondary">{t.save}</Button>
+              <Button style="primary" onClick={() => openChat({ id: m.id, name: `${m.trade_name_en} ${m.strength_text}` })}>
+                {t.askAboutMedicine}
+              </Button>
+              <Button
+                style="secondary"
+                className={compare.includes(m.id) ? "!bg-tint-blue" : ""}
+                onClick={() => toggleCompare(m.id)}
+                aria-pressed={compare.includes(m.id)}
+              >
+                {compare.includes(m.id) ? t.added : t.compare}
+              </Button>
+              <Button
+                style="secondary"
+                className={saved ? "!bg-tint-blue" : ""}
+                aria-pressed={saved}
+                onClick={async () => {
+                  if (!user) {
+                    router.push(`/${lang}/account/sign-in/?next=${encodeURIComponent(`/${lang}/medicine/?id=${m.id}`)}`);
+                    return;
+                  }
+                  if (saved) await api.unsave(m.id);
+                  else await api.save(m.id);
+                  setSaved(!saved);
+                }}
+              >
+                {saved ? t.saved : t.save}
+              </Button>
             </div>
           </div>
         </section>

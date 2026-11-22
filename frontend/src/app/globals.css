@@ -40,6 +40,7 @@
 
 /* Text styles: EN sizes, AR uses the same sizes with taller line heights */
 .t-display { font-size: 44px; line-height: 52px; font-weight: 600; }
+.t-h1 { font-size: 32px; line-height: 40px; font-weight: 600; }
 .t-h2 { font-size: 24px; line-height: 32px; font-weight: 600; }
 .t-h3 { font-size: 20px; line-height: 28px; font-weight: 500; }
 .t-body { font-size: 16px; line-height: 24px; font-weight: 400; }
@@ -48,6 +49,7 @@
 .t-caption { font-size: 12px; line-height: 16px; font-weight: 400; }
 
 [lang="ar"] .t-display { line-height: 64px; }
+[lang="ar"] .t-h1 { line-height: 52px; }
 [lang="ar"] .t-h2 { line-height: 40px; }
 [lang="ar"] .t-h3 { line-height: 32px; }
 [lang="ar"] .t-body { line-height: 28px; }
@@ -70,7 +72,9 @@ body {
   font-family: var(--font-sans);
 }
 
-:focus-visible {
-  outline: 2px solid var(--color-blue);
-  outline-offset: 2px;
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: 2px;
+  }
 }

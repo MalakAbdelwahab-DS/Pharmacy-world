@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { ChatButton } from "@/components/ChatButton";
+import { ChatPanel } from "@/components/ChatPanel";
+import { CompareBar } from "@/components/CompareBar";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { Providers } from "@/components/Providers";
 import { dir, isLang, languages } from "@/lib/i18n";
 import "../globals.css";
 
@@ -29,10 +32,14 @@ export default async function LangLayout({
   return (
     <html lang={lang} dir={dir(lang)}>
       <body className="min-h-screen flex flex-col">
-        <Header lang={lang} />
-        <main className="flex-1 w-full">{children}</main>
-        <Footer lang={lang} />
-        <ChatButton lang={lang} />
+        <Providers>
+          <Header lang={lang} />
+          <main className="flex-1 w-full">{children}</main>
+          <Footer lang={lang} />
+          <CompareBar lang={lang} />
+          <ChatPanel lang={lang} />
+          <ChatButton lang={lang} />
+        </Providers>
       </body>
     </html>
   );

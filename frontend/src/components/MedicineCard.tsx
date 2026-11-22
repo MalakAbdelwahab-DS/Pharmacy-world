@@ -1,41 +1,43 @@
+"use client";
+
 import Link from "next/link";
 
 import { Badge, RxBadge } from "@/components/ui";
 import type { MedicineCard as Card } from "@/lib/api";
 import { dictionaries, type Lang } from "@/lib/i18n";
+import { useApp } from "@/lib/store";
 
 export const formatPrice = (value: number | null, lang: Lang, digits = 2) =>
   value == null ? null : `${Number(value).toFixed(digits)} ${dictionaries[lang].currency}`;
 
-export const medicineName = (m: Card, lang: Lang) => (lang === "ar" && m.trade_name_ar ? m.trade_name_ar : m.trade_name_en);
+export const medicineName = (m: Pick<Card, "trade_name_en" | "trade_name_ar">, lang: Lang) =>
+  lang === "ar" && m.trade_name_ar ? m.trade_name_ar : m.trade_name_en;
 
 // Figma "Medicine card".
 // Results variant: 1px border, radius 12. Alternative variant: no border, radius 24, card shadow, type badge on top.
-export function MedicineCard({
-  medicine: m,
-  lang,
-  type,
-}: {
-  medicine: Card;
-  lang: Lang;
-  type?: "exact" | "related";
-}) {
+// The whole card opens the medicine; "+ Compare" adds it to the compare list.
+export function MedicineCard({ medicine: m, lang, type }: { medicine: Card; lang: Lang; type?: "exact" | "related" }) {
   const t = dictionaries[lang];
-  const frame = type
-    ? "rounded-lg shadow-[var(--shadow-card)]"
-    : "rounded-md border border-border";
+  const { compare, toggleCompare } = useApp();
+  const inCompare = compare.includes(m.id);
+  const frame = type ? "rounded-lg shadow-[var(--shadow-card)]" : "rounded-md border border-border";
 
   return (
-    <Link href={`/${lang}/medicine/?id=${m.id}`} className={`bg-white ${frame} p-4 flex flex-col gap-2 h-full hover:ring-2 hover:ring-tint-blue`}>
-      {(type || m.sponsored) && (
+    <div className={`relative bg-white ${frame} p-4 flex flex-col gap-2 h-full hover:ring-2 hover:ring-tint-blue`}>
+      {(type || m.sponsored || m.status === "discontinued") && (
         <div className="flex gap-2">
           {type === "exact" && <Badge tone="exact">{t.exactBadge}</Badge>}
           {type === "related" && <Badge tone="related">{t.relatedBadge}</Badge>}
           {m.sponsored && <Badge tone="grey">{t.sponsored}</Badge>}
+          {m.status === "discontinued" && <Badge tone="grey">{t.discontinued}</Badge>}
         </div>
       )}
       <div className="flex items-center gap-2">
-        <h3 className="flex-1 min-w-0 t-h3 text-ink">{medicineName(m, lang)}</h3>
+        <h3 className="flex-1 min-w-0 t-h3 text-ink">
+          <Link href={`/${lang}/medicine/?id=${m.id}`} className="after:absolute after:inset-0 after:content-['']">
+            {medicineName(m, lang)}
+          </Link>
+        </h3>
         <RxBadge status={m.rx_status} />
       </div>
       <p className="t-body text-ink">
@@ -61,8 +63,10 @@ export function MedicineCard({
             </>
           )}
         </div>
-        <span className="t-label text-blue">{t.compare}</span>
+        <button type="button" onClick={() => toggleCompare(m.id)} aria-pressed={inCompare} className="relative z-10 t-label text-blue">
+          {inCompare ? t.added : t.compare}
+        </button>
       </div>
-    </Link>
+    </div>
   );
 }

@@ -1,4 +1,5 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const TOKEN_KEY = "pw_token";
 
 export type MedicineCard = {
   id: number;
@@ -10,6 +11,7 @@ export type MedicineCard = {
   rx_status: "Rx" | "OTC" | null;
   status: "active" | "discontinued";
   sponsored: boolean;
+  priority?: number | null;
   manufacturer: string | null;
   country: string | null;
   from_price: number | null;
@@ -43,20 +45,92 @@ export type MedicineDetail = MedicineCard & {
   clinical_sections: ClinicalSection[];
 };
 
-export type Category = { name: string; medicines: number; examples: string[] };
-
 export type SearchResponse = { query: string; total: number; results: MedicineCard[]; did_you_mean: string | null };
 export type Alternatives = { same_medicine: MedicineCard[]; similar: MedicineCard[] };
+export type Category = { name: string; medicines: number; examples: string[] };
+export type Condition = { slug: string; name_en: string; name_ar: string; medicines: number; examples: string[] };
+export type ListResponse = { total: number; results: MedicineCard[] };
+export type Ingredient = { id: number; name_en: string; name_ar: string | null; medicines: number };
+export type User = { id: number; name: string; email: string };
+export type Source = { medicine_id: number; name: string; reference: string; last_updated: string | null };
+export type AssistantKind = "answer" | "no_info" | "safety";
+export type AssistantReply = { chat_id: number; kind: AssistantKind; text: string; sources: Source[] };
+export type ChatSummary = { id: number; title: string; created_at: string; product_id: number | null; medicine: string | null; strength: string | null };
+export type ChatMessage = { role: "user" | "assistant"; kind: AssistantKind | "question"; content: string; sources: Source[] };
+export type ChatDetail = ChatSummary & { messages: ChatMessage[] };
 
-async function get<T>(path: string): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`);
-  if (!res.ok) throw new Error(`${res.status}`);
+export class ApiError extends Error {
+  constructor(public status: number, public detail: unknown) {
+    super(`${status}`);
+  }
+}
+
+export const token = {
+  get: () => {
+    try {
+      return localStorage.getItem(TOKEN_KEY);
+    } catch {
+      return null;
+    }
+  },
+  set: (value: string | null) => {
+    try {
+      if (value) localStorage.setItem(TOKEN_KEY, value);
+      else localStorage.removeItem(TOKEN_KEY);
+    } catch {
+      /* storage unavailable: stay signed out */
+    }
+  },
+};
+
+async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const headers = new Headers(init.headers);
+  const t = token.get();
+  if (t) headers.set("Authorization", `Bearer ${t}`);
+  if (init.body && !(init.body instanceof FormData)) headers.set("Content-Type", "application/json");
+  const res = await fetch(`${API_URL}${path}`, { ...init, headers });
+  if (!res.ok) {
+    let detail: unknown = null;
+    try {
+      detail = (await res.json()).detail;
+    } catch {
+      /* no body */
+    }
+    throw new ApiError(res.status, detail);
+  }
   return res.json();
 }
 
+const body = (data: unknown) => JSON.stringify(data);
+
 export const api = {
-  search: (q: string) => get<SearchResponse>(`/medicines/search?q=${encodeURIComponent(q)}`),
-  medicine: (id: string) => get<MedicineDetail>(`/medicines/${id}`),
-  alternatives: (id: string) => get<Alternatives>(`/medicines/${id}/alternatives`),
-  categories: () => get<Category[]>(`/categories`),
+  search: (q: string) => request<SearchResponse>(`/medicines/search?q=${encodeURIComponent(q)}`),
+  medicine: (id: string | number) => request<MedicineDetail>(`/medicines/${id}`),
+  alternatives: (id: string | number) => request<Alternatives>(`/medicines/${id}/alternatives`),
+  categories: () => request<Category[]>(`/categories`),
+  category: (name: string) => request<ListResponse>(`/categories/${encodeURIComponent(name)}`),
+  conditions: () => request<Condition[]>(`/conditions`),
+  condition: (slug: string) => request<ListResponse & { name_en: string; name_ar: string }>(`/conditions/${slug}`),
+  ingredients: () => request<{ letters: string[]; items: Ingredient[] }>(`/ingredients`),
+
+  register: (data: { name: string; email: string; password: string }) =>
+    request<{ token: string; user: User }>(`/auth/register`, { method: "POST", body: body(data) }),
+  login: (data: { email: string; password: string }) =>
+    request<{ token: string; user: User }>(`/auth/login`, { method: "POST", body: body(data) }),
+  logout: () => request(`/auth/logout`, { method: "POST" }),
+  me: () => request<User>(`/auth/me`),
+
+  saved: () => request<MedicineCard[]>(`/me/saved`),
+  save: (id: number) => request(`/me/saved/${id}`, { method: "PUT" }),
+  unsave: (id: number) => request(`/me/saved/${id}`, { method: "DELETE" }),
+  chats: () => request<ChatSummary[]>(`/me/chats`),
+  chat: (id: number) => request<ChatDetail>(`/me/chats/${id}`),
+
+  ask: (data: { question: string; medicine_id?: number | null; chat_id?: number | null }) =>
+    request<AssistantReply>(`/assistant/ask`, { method: "POST", body: body(data) }),
+  photo: (file: File) => {
+    const form = new FormData();
+    form.append("image", file);
+    return request<{ found: string[] }>(`/search/photo`, { method: "POST", body: form });
+  },
 };

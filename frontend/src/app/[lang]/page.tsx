@@ -1,7 +1,10 @@
 import { FlaskConical, HeartPulse, LayoutGrid } from "lucide-react";
 
+import Link from "next/link";
+
+import { AskButton } from "@/components/AskButton";
 import { SearchBar } from "@/components/SearchBar";
-import { Button, Chip } from "@/components/ui";
+import { Chip } from "@/components/ui";
 import { dictionaries, isLang, languages } from "@/lib/i18n";
 
 export function generateStaticParams() {
@@ -40,14 +43,18 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
           {t.browseTiles.map((tile, i) => {
             const Icon = browseIcons[i];
             return (
-              <div key={tile.title} className="bg-white rounded-lg shadow-[var(--shadow-tile)] p-8 flex flex-col gap-3 items-start">
+              <Link
+                key={tile.title}
+                href={`/${lang}/${t.browseHrefs[i]}/`}
+                className="bg-white rounded-lg shadow-[var(--shadow-tile)] p-8 flex flex-col gap-3 items-start hover:ring-2 hover:ring-tint-blue"
+              >
                 <span className="size-[34px] rounded-full bg-tint-blue text-blue flex items-center justify-center">
                   <Icon size={20} strokeWidth={1.8} aria-hidden />
                 </span>
                 <h3 className="t-h3 text-ink">{tile.title}</h3>
                 <p className="t-body-sm text-slate">{tile.text}</p>
                 <span className="t-label text-blue">{t.explore}</span>
-              </div>
+              </Link>
             );
           })}
         </div>
@@ -58,7 +65,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
           <h2 className="t-h3 text-ink">{t.aiTitle}</h2>
           <p className="t-body text-slate">{t.aiText}</p>
         </div>
-        <Button style="secondary">{t.askQuestion}</Button>
+        <AskButton style="secondary">{t.askQuestion}</AskButton>
       </section>
     </div>
   );
