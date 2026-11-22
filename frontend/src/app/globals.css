@@ -3,7 +3,7 @@
 @import "@fontsource/readex-pro/500.css";
 @import "@fontsource/readex-pro/600.css";
 
-/* Pharmacy World design tokens (from the Figma design system) */
+/* Design tokens: same names and values as the Figma variables */
 @theme {
   --font-sans: "Readex Pro", system-ui, sans-serif;
 
@@ -15,8 +15,8 @@
   --color-slate: #5b6b82;
   --color-ink: #14213d;
   --color-danger: #c62828;
-  --color-caution: #a8500a;
-  --color-exact: #2a7450;
+  --color-caution: #d9600b;
+  --color-exact: #2e7d57;
   --color-discontinued: #8a94a6;
 
   --color-tint-blue: #e8edf4;
@@ -26,14 +26,43 @@
   --color-tint-orange: #fae9dd;
   --color-tint-red: #f8e5e5;
   --color-border: #d6dae0;
-  --color-border-input: #7d8799;
+  --color-border-strong: #c6cbd3;
 
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 24px;
 
   --shadow-tile: 0 6px 24px rgba(20, 33, 61, 0.06);
+  --shadow-card: 0 6px 12px rgba(20, 33, 61, 0.06);
+  --shadow-segment: 0 1px 4px rgba(20, 33, 61, 0.1);
+  --shadow-float: 0 4px 6px rgba(20, 33, 61, 0.22);
 }
+
+/* Text styles: EN sizes, AR uses the same sizes with taller line heights */
+.t-display { font-size: 44px; line-height: 52px; font-weight: 600; }
+.t-h2 { font-size: 24px; line-height: 32px; font-weight: 600; }
+.t-h3 { font-size: 20px; line-height: 28px; font-weight: 500; }
+.t-body { font-size: 16px; line-height: 24px; font-weight: 400; }
+.t-body-sm { font-size: 14px; line-height: 20px; font-weight: 400; }
+.t-label { font-size: 14px; line-height: 20px; font-weight: 500; }
+.t-caption { font-size: 12px; line-height: 16px; font-weight: 400; }
+
+[lang="ar"] .t-display { line-height: 64px; }
+[lang="ar"] .t-h2 { line-height: 40px; }
+[lang="ar"] .t-h3 { line-height: 32px; }
+[lang="ar"] .t-body { line-height: 28px; }
+[lang="ar"] .t-body-sm, [lang="ar"] .t-label { line-height: 24px; }
+[lang="ar"] .t-caption { line-height: 20px; }
+
+/* Page width: 1440 frame with 120 side margins on desktop */
+.page {
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: 16px;
+}
+@media (min-width: 768px) { .page { padding-inline: 32px; } }
+@media (min-width: 1280px) { .page { padding-inline: 120px; } }
 
 body {
   background: var(--color-mist);

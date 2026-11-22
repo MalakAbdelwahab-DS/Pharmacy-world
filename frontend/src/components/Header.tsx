@@ -3,27 +3,36 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { Logo } from "@/components/Logo";
 import { SearchBar } from "@/components/SearchBar";
+import { buttonClass } from "@/components/ui";
 import { dictionaries, type Lang } from "@/lib/i18n";
 
+// Figma "Header": 120px side margins, 24px vertical padding, 24px gaps.
+// The home page has no search bar in the header (the search is in the hero).
 export function Header({ lang }: { lang: Lang }) {
   const t = dictionaries[lang];
   const pathname = usePathname();
+  const isHome = /^\/(en|ar)\/?$/.test(pathname);
   const other: Lang = lang === "en" ? "ar" : "en";
-  // Same page in the other language
-  const switchHref = pathname.replace(/^\/(en|ar)/, `/${other}`);
+  const switchHref = pathname.replace(/^\/(en|ar)/, `/${other}`) + (typeof window !== "undefined" ? window.location.search : "");
 
   return (
-    <header className="w-full max-w-[1200px] mx-auto px-4 md:px-8 py-5 flex flex-wrap items-center gap-4 md:gap-8">
-      <Link href={`/${lang}/`} className="font-semibold text-lg text-navy shrink-0">
-        {t.brand}
-      </Link>
-      <div className="flex-1 min-w-[240px]">
-        <SearchBar lang={lang} />
+    <header className="page py-6 flex flex-wrap items-center justify-between gap-6">
+      <Logo lang={lang} />
+      {!isHome && (
+        <div className="order-last w-full lg:order-none lg:w-auto lg:flex-1">
+          <SearchBar lang={lang} />
+        </div>
+      )}
+      <div className="flex items-center gap-4">
+        <Link href={switchHref} lang={other} className={buttonClass("ghost")}>
+          {t.otherLanguage}
+        </Link>
+        <Link href={`/${lang}/`} className={buttonClass("primary")}>
+          {t.signIn}
+        </Link>
       </div>
-      <Link href={switchHref} lang={other} className="text-blue font-medium text-sm">
-        {t.otherLanguage}
-      </Link>
     </header>
   );
 }

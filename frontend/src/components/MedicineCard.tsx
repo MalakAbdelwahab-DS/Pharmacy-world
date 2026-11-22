@@ -1,57 +1,68 @@
 import Link from "next/link";
 
+import { Badge, RxBadge } from "@/components/ui";
 import type { MedicineCard as Card } from "@/lib/api";
 import { dictionaries, type Lang } from "@/lib/i18n";
 
-export function Badge({ children, tone = "slate" }: { children: React.ReactNode; tone?: "slate" | "blue" | "green" | "grey" }) {
-  const tones = {
-    slate: "bg-tint-slate text-ink",
-    blue: "bg-tint-blue text-blue",
-    green: "bg-tint-green text-exact",
-    grey: "bg-tint-grey text-ink",
-  };
-  return <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${tones[tone]}`}>{children}</span>;
-}
+export const formatPrice = (value: number | null, lang: Lang, digits = 2) =>
+  value == null ? null : `${Number(value).toFixed(digits)} ${dictionaries[lang].currency}`;
 
-export const price = (value: number | null, lang: Lang, digits = 2) =>
-  value == null ? null : `${value.toFixed(digits)} ${dictionaries[lang].currency}`;
+export const medicineName = (m: Card, lang: Lang) => (lang === "ar" && m.trade_name_ar ? m.trade_name_ar : m.trade_name_en);
 
-export function MedicineCard({ medicine: m, lang }: { medicine: Card; lang: Lang }) {
+// Figma "Medicine card".
+// Results variant: 1px border, radius 12. Alternative variant: no border, radius 24, card shadow, type badge on top.
+export function MedicineCard({
+  medicine: m,
+  lang,
+  type,
+}: {
+  medicine: Card;
+  lang: Lang;
+  type?: "exact" | "related";
+}) {
   const t = dictionaries[lang];
-  const name = lang === "ar" && m.trade_name_ar ? m.trade_name_ar : m.trade_name_en;
+  const frame = type
+    ? "rounded-lg shadow-[var(--shadow-card)]"
+    : "rounded-md border border-border";
 
   return (
-    <Link
-      href={`/${lang}/medicine/?id=${m.id}`}
-      className="block bg-white rounded-lg shadow-[var(--shadow-tile)] p-5 hover:ring-2 hover:ring-tint-blue"
-    >
-      <div className="flex flex-wrap gap-2 mb-2">
-        {m.sponsored && <Badge tone="grey">{t.sponsored}</Badge>}
-        {m.lower_price && <Badge tone="green">{t.lowerPrice}</Badge>}
-        {m.status === "discontinued" && <Badge tone="grey">{t.discontinued}</Badge>}
-      </div>
-      <div className="flex items-start justify-between gap-3">
-        <h3 className="text-lg font-semibold">{name}</h3>
-        {m.rx_status && <Badge>{m.rx_status}</Badge>}
-      </div>
-      <p className="mt-1">
-        <bdi dir="ltr">{m.ingredients} {m.strength_text}</bdi>
-      </p>
-      <p className="text-sm text-slate mt-1">
-        {m.dosage_form} · {t.manufacturer}: {m.manufacturer ?? "—"}
-      </p>
-      {m.from_price != null && (
-        <div className="mt-4">
-          <p className="text-sm font-semibold">
-            {t.publicPrice}: {t.from} {price(m.from_price, lang)}
-          </p>
-          {m.price_per_unit != null && (
-            <p className="text-xs text-slate">
-              {price(m.price_per_unit, lang)} {t.per} {m.unit_name}
-            </p>
-          )}
+    <Link href={`/${lang}/medicine/?id=${m.id}`} className={`bg-white ${frame} p-4 flex flex-col gap-2 h-full hover:ring-2 hover:ring-tint-blue`}>
+      {(type || m.sponsored) && (
+        <div className="flex gap-2">
+          {type === "exact" && <Badge tone="exact">{t.exactBadge}</Badge>}
+          {type === "related" && <Badge tone="related">{t.relatedBadge}</Badge>}
+          {m.sponsored && <Badge tone="grey">{t.sponsored}</Badge>}
         </div>
       )}
+      <div className="flex items-center gap-2">
+        <h3 className="flex-1 min-w-0 t-h3 text-ink">{medicineName(m, lang)}</h3>
+        <RxBadge status={m.rx_status} />
+      </div>
+      <p className="t-body text-ink">
+        <bdi dir="ltr">
+          {m.ingredients} {m.strength_text}
+        </bdi>
+      </p>
+      <p className="t-body-sm text-slate">
+        <bdi>{m.dosage_form}</bdi> · <bdi>{m.manufacturer ?? "—"}</bdi>
+      </p>
+      <div className="mt-auto pt-2 flex items-center gap-2">
+        <div className="flex-1">
+          {m.from_price != null && (
+            <>
+              <p className="t-label text-ink">
+                {t.from} {formatPrice(m.from_price, lang)}
+              </p>
+              {m.price_per_unit != null && (
+                <p className="t-caption text-slate">
+                  {formatPrice(m.price_per_unit, lang)} {t.per} <bdi>{m.unit_name}</bdi>
+                </p>
+              )}
+            </>
+          )}
+        </div>
+        <span className="t-label text-blue">{t.compare}</span>
+      </div>
     </Link>
   );
 }
