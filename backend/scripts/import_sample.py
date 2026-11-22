@@ -209,6 +209,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("xlsx")
     parser.add_argument("--db", help="PostgreSQL connection string; omit for report only")
+    parser.add_argument("--if-empty", action="store_true", help="Only load when the database has no medicines yet")
     parser.add_argument("--report", default=str(Path(__file__).resolve().parents[2] / "docs" / "data_report.md"))
     args = parser.parse_args()
 
@@ -217,8 +218,18 @@ def main():
     Path(args.report).write_text(build_report(df, raw), encoding="utf-8")
     print(f"Report written to {args.report}")
     if args.db:
+        if args.if_empty and _has_medicines(args.db):
+            print("Database already has medicines; skipping load.")
+            return
         load_db(df, args.db)
         print("Data loaded.")
+
+
+def _has_medicines(dsn):
+    import psycopg
+
+    with psycopg.connect(dsn) as conn:
+        return conn.execute("SELECT EXISTS (SELECT 1 FROM products)").fetchone()[0]
 
 
 if __name__ == "__main__":

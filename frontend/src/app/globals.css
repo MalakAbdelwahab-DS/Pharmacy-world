@@ -1,0 +1,47 @@
+@import "tailwindcss";
+@import "@fontsource/readex-pro/400.css";
+@import "@fontsource/readex-pro/500.css";
+@import "@fontsource/readex-pro/600.css";
+
+/* Pharmacy World design tokens (from the Figma design system) */
+@theme {
+  --font-sans: "Readex Pro", system-ui, sans-serif;
+
+  --color-blue: #1b4a8f;
+  --color-gold: #ecb04c;
+  --color-navy: #132e5c;
+  --color-white: #ffffff;
+  --color-mist: #f3f6fb;
+  --color-slate: #5b6b82;
+  --color-ink: #14213d;
+  --color-danger: #c62828;
+  --color-caution: #a8500a;
+  --color-exact: #2a7450;
+  --color-discontinued: #8a94a6;
+
+  --color-tint-blue: #e8edf4;
+  --color-tint-slate: #e8eaee;
+  --color-tint-grey: #eaecef;
+  --color-tint-green: #e2ede8;
+  --color-tint-orange: #fae9dd;
+  --color-tint-red: #f8e5e5;
+  --color-border: #d6dae0;
+  --color-border-input: #7d8799;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 24px;
+
+  --shadow-tile: 0 6px 24px rgba(20, 33, 61, 0.06);
+}
+
+body {
+  background: var(--color-mist);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 2px;
+}

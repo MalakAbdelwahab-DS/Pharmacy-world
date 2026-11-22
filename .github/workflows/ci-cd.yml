@@ -1,0 +1,152 @@
+# Pharmacy World CI/CD
+# Every pull request: test the backend and build the frontend.
+# Every push to main: the same, then deploy to the "development" environment:
+#   1. update the Neon database (migrations + sample data on first run)
+#   2. deploy the backend on Render and wait until it answers
+#   3. build the frontend against that backend and publish it on GitHub Pages
+
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: development
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  backend-test:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: pharmacy
+          POSTGRES_PASSWORD: pharmacy
+          POSTGRES_DB: pharmacy
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://pharmacy:pharmacy@localhost:5432/pharmacy
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pipx install poetry
+      - run: poetry install --no-interaction
+      - run: poetry run python scripts/migrate.py
+      - run: poetry run python scripts/import_sample.py ../data/sample/pharmacy_world_drug_data.xlsx --db "$DATABASE_URL"
+      - run: poetry run pytest
+
+  frontend-build:
+    name: Frontend lint and build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+
+  deploy-backend:
+    name: Deploy backend (development)
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: [backend-test, frontend-build]
+    runs-on: ubuntu-latest
+    environment:
+      name: development
+      url: ${{ vars.API_URL }}/docs
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Check setup
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+          API_URL: ${{ vars.API_URL }}
+        run: |
+          missing=""
+          [ -z "$DATABASE_URL" ] && missing="$missing DATABASE_URL(secret)"
+          [ -z "$RENDER_DEPLOY_HOOK" ] && missing="$missing RENDER_DEPLOY_HOOK(secret)"
+          [ -z "$API_URL" ] && missing="$missing API_URL(variable)"
+          if [ -n "$missing" ]; then
+            echo "::error::The development environment is missing:$missing. See README, section Deployment."
+            exit 1
+          fi
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pipx install poetry
+      - run: poetry install --only main --no-root --no-interaction
+      - name: Update database
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          poetry run python scripts/migrate.py
+          poetry run python scripts/import_sample.py ../data/sample/pharmacy_world_drug_data.xlsx --db "$DATABASE_URL" --if-empty
+      - name: Deploy on Render
+        run: curl --fail --silent --show-error -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+      - name: Wait for the backend
+        run: |
+          # Render's free plan builds and wakes slowly: wait up to 10 minutes
+          sleep 60
+          for i in $(seq 1 54); do
+            if curl --fail --silent "${{ vars.API_URL }}/health"; then echo; echo "Backend is up"; exit 0; fi
+            sleep 10
+          done
+          echo "Backend did not answer in time" && exit 1
+
+  deploy-frontend:
+    name: Deploy frontend (development)
+    needs: deploy-backend
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: development
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - id: pages
+        uses: actions/configure-pages@v5
+      - name: Build
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: ${{ vars.API_URL }}
+          NEXT_PUBLIC_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+        run: |
+          npm ci
+          npm run build
+          touch out/.nojekyll
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/out
+      - id: deployment
+        uses: actions/deploy-pages@v4
