@@ -85,9 +85,9 @@ function NoResults({ lang, q, suggestion }: { lang: Lang; q: string; suggestion:
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {categories.map((c) => (
               <BrowseTile
-                key={c.name}
-                href={`/${lang}/browse/category/?name=${encodeURIComponent(c.name)}`}
-                title={c.name}
+                key={c.slug}
+                href={`/${lang}/browse/category/?slug=${c.slug}`}
+                title={lang === "ar" ? c.name_ar : c.name_en}
                 examples={c.examples.join(", ")}
                 count={t.medicinesCount(c.medicines)}
               />

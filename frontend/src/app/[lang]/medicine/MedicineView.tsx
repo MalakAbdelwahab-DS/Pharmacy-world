@@ -83,10 +83,10 @@ function View({ lang }: { lang: Lang }) {
       <p className="t-caption text-slate whitespace-pre">
         <Link href={`/${lang}/`}>{t.home}</Link>
         {"   ›   "}
-        {m.therapeutic_class && (
+        {m.categories[0] && (
           <>
-            <Link href={`/${lang}/browse/category/?name=${encodeURIComponent(m.therapeutic_class)}`}>
-              <bdi>{m.therapeutic_class}</bdi>
+            <Link href={`/${lang}/browse/category/?slug=${m.categories[0].slug}`}>
+              {lang === "ar" ? m.categories[0].name_ar : m.categories[0].name_en}
             </Link>
             {"   ›   "}
           </>
@@ -133,11 +133,11 @@ function View({ lang }: { lang: Lang }) {
               )}
             </div>
             <div className="pt-2 flex flex-wrap gap-2">
-              {m.therapeutic_class && (
-                <Chip href={`/${lang}/browse/category/?name=${encodeURIComponent(m.therapeutic_class)}`}>
-                  <bdi>{m.therapeutic_class}</bdi>
+              {m.conditions.map((c) => (
+                <Chip key={c.slug} href={`/${lang}/browse/condition/?slug=${c.slug}`}>
+                  {lang === "ar" ? c.name_ar : c.name_en}
                 </Chip>
-              )}
+              ))}
               {m.atc_code && <Chip><bdi>ATC {m.atc_code}</bdi></Chip>}
             </div>
             <div className="flex flex-wrap gap-2">
@@ -177,9 +177,12 @@ function View({ lang }: { lang: Lang }) {
             <>
               <p className="t-h2 text-slate">{t.noLongerSold}</p>
               {packs[0] && (
-                <p className="t-caption text-slate">
-                  {t.lastPrice} {formatPrice(packs[0].public_price, lang)}
-                </p>
+                <div>
+                  <p className="t-caption text-slate">
+                    {t.lastPrice} {formatPrice(packs[0].public_price, lang)}
+                  </p>
+                  <p className="t-caption text-slate">{t.vatNote}</p>
+                </div>
               )}
               <Button style="primary" onClick={() => document.getElementById("alternatives")?.scrollIntoView({ behavior: "smooth" })}>
                 {t.seeAlternatives}
@@ -217,6 +220,7 @@ function View({ lang }: { lang: Lang }) {
                     )}
                     {t.officialPrice}
                   </p>
+                  <p className="t-caption text-slate">{t.vatNote}</p>
                 </div>
               )}
               {hasLowerPrice && (

@@ -85,6 +85,7 @@ export function ResultsList({ lang, results, moreLabel }: { lang: Lang; results:
           ))}
         </div>
       )}
+      {filtered.length > 0 && <p className="t-caption text-slate">{t.vatNote}</p>}
       {shown < filtered.length && (
         <div className="flex justify-center">
           <Button style="secondary" onClick={() => setShown(shown + PAGE_SIZE)}>

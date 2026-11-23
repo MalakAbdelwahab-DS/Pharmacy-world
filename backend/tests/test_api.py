@@ -56,8 +56,10 @@ def test_sponsored_rule():
 
 def test_browse(client):
     cats = client.get("/categories").json()
-    assert cats and cats[0]["medicines"] > 0
-    assert client.get(f"/categories/{cats[0]['name']}").json()["total"] > 0
+    assert len(cats) == 12 and sum(c["medicines"] for c in cats) > 0
+    full = [c for c in cats if c["medicines"]][0]
+    assert client.get(f"/categories/{full['slug']}").json()["total"] == full["medicines"]
+    assert client.get("/categories/nope").status_code == 404
     ing = client.get("/ingredients", params={"letter": "a"}).json()
     assert ing["items"] and all(i["name_en"][0].upper() == "A" for i in ing["items"])
     countries = client.get("/brands/countries").json()
@@ -100,8 +102,9 @@ def test_account_saved_and_chats(client):
 
 def test_conditions(client):
     conds = client.get("/conditions").json()
-    assert conds and all(c["medicines"] > 0 for c in conds)
-    assert client.get(f"/conditions/{conds[0]['slug']}").json()["total"] > 0
+    assert len(conds) == 12 and all(c["desc_en"] for c in conds)
+    full = [c for c in conds if c["medicines"]][0]
+    assert client.get(f"/conditions/{full['slug']}").json()["total"] == full["medicines"]
 
 
 class _FakeClient:

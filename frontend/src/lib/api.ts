@@ -43,13 +43,25 @@ export type MedicineDetail = MedicineCard & {
   atc_code: string | null;
   packs: Pack[];
   clinical_sections: ClinicalSection[];
+  categories: Named[];
+  conditions: Named[];
 };
 
 export type SearchResponse = { query: string; total: number; results: MedicineCard[]; did_you_mean: string | null };
 export type Alternatives = { same_medicine: MedicineCard[]; similar: MedicineCard[] };
-export type Category = { name: string; medicines: number; examples: string[] };
-export type Condition = { slug: string; name_en: string; name_ar: string; medicines: number; examples: string[] };
-export type ListResponse = { total: number; results: MedicineCard[] };
+export type Named = { slug: string; name_en: string; name_ar: string };
+export type Category = Named & { text_en: string; text_ar: string; medicines: number; examples: string[] };
+export type Condition = Named & { desc_en: string; desc_ar: string; medicines: number; examples: string[] };
+export type ConditionChip = Named & { ids: number[] };
+export type ListResponse = Named & {
+  text_en?: string;
+  text_ar?: string;
+  desc_en?: string;
+  desc_ar?: string;
+  total: number;
+  results: MedicineCard[];
+  conditions: ConditionChip[];
+};
 export type Ingredient = { id: number; name_en: string; name_ar: string | null; medicines: number };
 export type User = { id: number; name: string; email: string };
 export type Source = { medicine_id: number; name: string; reference: string; last_updated: string | null };
@@ -108,9 +120,9 @@ export const api = {
   medicine: (id: string | number) => request<MedicineDetail>(`/medicines/${id}`),
   alternatives: (id: string | number) => request<Alternatives>(`/medicines/${id}/alternatives`),
   categories: () => request<Category[]>(`/categories`),
-  category: (name: string) => request<ListResponse>(`/categories/${encodeURIComponent(name)}`),
+  category: (slug: string) => request<ListResponse>(`/categories/${encodeURIComponent(slug)}`),
   conditions: () => request<Condition[]>(`/conditions`),
-  condition: (slug: string) => request<ListResponse & { name_en: string; name_ar: string }>(`/conditions/${slug}`),
+  condition: (slug: string) => request<ListResponse>(`/conditions/${encodeURIComponent(slug)}`),
   ingredients: () => request<{ letters: string[]; items: Ingredient[] }>(`/ingredients`),
 
   register: (data: { name: string; email: string; password: string }) =>

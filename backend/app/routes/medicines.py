@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Query
 
 from app.db import query, query_one
 from app.ordering import with_sponsored_first
+from app.taxonomy import CATEGORIES, CONDITIONS, matches
 
 router = APIRouter(prefix="/medicines", tags=["medicines"])
 
@@ -55,6 +56,11 @@ def detail(medicine_id: int):
            FROM packs WHERE product_id = %s ORDER BY unit_count NULLS LAST""",
         (medicine_id,),
     )
+    # Category for the breadcrumb, conditions for the chips
+    card["categories"] = [{"slug": c["slug"], "name_en": c["name_en"], "name_ar": c["name_ar"]}
+                          for c in CATEGORIES if matches(c, card["therapeutic_class"])]
+    card["conditions"] = [{"slug": c["slug"], "name_en": c["name_en"], "name_ar": c["name_ar"]}
+                          for c in CONDITIONS if matches(c, card["therapeutic_class"])]
     card["clinical_sections"] = query(
         """SELECT section, content_en, content_ar, reference, last_updated
            FROM clinical_sections WHERE product_id = %s ORDER BY id""",

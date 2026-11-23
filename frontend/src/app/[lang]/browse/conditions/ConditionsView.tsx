@@ -27,7 +27,7 @@ export function ConditionsView({ lang }: { lang: Lang }) {
               key={c.slug}
               href={`/${lang}/browse/condition/?slug=${c.slug}`}
               title={lang === "ar" ? c.name_ar : c.name_en}
-              examples={c.examples.join(", ")}
+              examples={lang === "ar" ? c.desc_ar : c.desc_en}
               count={t.medicinesCount(c.medicines)}
             />
           ))}

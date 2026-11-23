@@ -45,6 +45,7 @@ export function SavedView({ lang }: { lang: Lang }) {
           ))}
         </div>
       )}
+      {items && items.length > 0 && <p className="t-caption text-slate">{t.vatNote}</p>}
     </AccountShell>
   );
 }
