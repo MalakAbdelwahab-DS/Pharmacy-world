@@ -31,6 +31,9 @@ function HeaderInner({ lang }: { lang: Lang }) {
         </div>
       )}
       <div className="flex items-center gap-4">
+        <Link href={`/${lang}/about/`} className={buttonClass("ghost")}>
+          {t.aboutLink}
+        </Link>
         <Link href={switchHref} lang={other} className={buttonClass("ghost")}>
           {t.otherLanguage}
         </Link>
